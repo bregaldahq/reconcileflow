@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reconcileflow"
+version = "0.1.0"
+description = "Explainable and deterministic data reconciliation with an agent-native engineering harness."
+requires-python = ">=3.12"
+authors = [{ name = "Ricardo Bregalda" }]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/bregaldahq/reconcileflow"
+Documentation = "https://github.com/bregaldahq/reconcileflow#readme"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "hypothesis>=6.120",
+  "ruff>=0.9",
+  "mypy>=1.14",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["reconcileflow"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

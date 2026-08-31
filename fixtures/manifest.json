@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "synthetic_only": true,
+  "scenarios": [
+    {
+      "id": "exact-ambiguous",
+      "path": "fixtures/golden/exact_ambiguous.json",
+      "kind": "golden"
+    },
+    {
+      "id": "demo-ledger-a",
+      "path": "fixtures/demo/ledger-a.csv",
+      "kind": "demo"
+    },
+    {
+      "id": "demo-settlement-b",
+      "path": "fixtures/demo/settlement-b.csv",
+      "kind": "demo"
+    }
+  ]
+}

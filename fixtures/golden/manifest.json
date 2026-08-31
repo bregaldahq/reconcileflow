@@ -1,0 +1,10 @@
+{
+  "fixtures": [
+    {
+      "id": "RF-EXACT-001",
+      "path": "fixtures/golden/RF-EXACT-001",
+      "purpose": "Formatting differences in document must normalize to one exact composite match.",
+      "status": "contract"
+    }
+  ]
+}

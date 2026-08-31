@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "exact_composite",
+      "version": 1,
+      "doc": "docs/product-specs/exact-matching.md",
+      "status": "implemented"
+    },
+    {
+      "id": "amount_date_tolerance",
+      "version": 1,
+      "doc": "docs/product-specs/tolerance-matching.md",
+      "status": "implemented"
+    },
+    {
+      "id": "bounded_split",
+      "version": 1,
+      "doc": "docs/product-specs/split-matching.md",
+      "status": "implemented"
+    }
+  ]
+}

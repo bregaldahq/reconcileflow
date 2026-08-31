@@ -1,0 +1,92 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "reconcileflow"
+version = "0.1.0"
+description = "Deterministic and explainable financial reconciliation"
+requires-python = ">=3.12"
+authors = [{ name = "Ricardo Bregalda" }]
+dependencies = [
+  "alembic>=1.16,<2",
+  "celery[redis]>=5.5,<6",
+  "fastapi>=0.116,<1",
+  "openpyxl>=3.1,<4",
+  "opentelemetry-api>=1.36,<2",
+  "opentelemetry-sdk>=1.36,<2",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.10,<3",
+  "python-multipart>=0.0.20,<1",
+  "sqlalchemy>=2.0.41,<3",
+  "structlog>=25.4,<26",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[project.urls]
+Repository = "https://github.com/bregaldahq/reconcileflow"
+Documentation = "https://github.com/bregaldahq/reconcileflow#readme"
+
+[project.optional-dependencies]
+dev = [
+  "bandit>=1.8,<2",
+  "httpx>=0.28,<1",
+  "hypothesis>=6.136,<7",
+  "mypy>=1.17,<2",
+  "pip-audit>=2.9,<3",
+  "pytest>=9.0.3,<10",
+  "pytest-benchmark>=5.1,<6",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+  "types-openpyxl>=3.1.5,<4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reconcileflow"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers --cov=reconcileflow --cov-report=term-missing:skip-covered --cov-fail-under=85"
+testpaths = ["tests"]
+markers = [
+  "contract: transport contract tests",
+  "golden: golden dataset tests",
+  "integration: adapter integration tests",
+  "performance: bounded performance regression tests",
+  "property: property-based invariant tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["reconcileflow"]
+
+[tool.coverage.report]
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["A", "ASYNC", "B", "C4", "E", "F", "I", "N", "PERF", "PIE", "PL", "PTH", "RUF", "S", "SIM", "T20", "UP"]
+ignore = ["PLR0913"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "PLR2004"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
+
+[[tool.mypy.overrides]]
+module = ["celery", "celery.*"]
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]

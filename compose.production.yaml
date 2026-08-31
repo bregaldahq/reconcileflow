@@ -1,0 +1,116 @@
+name: reconcileflow-production
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+x-app-environment: &app-environment
+  RECONCILEFLOW_ENVIRONMENT: production
+  RECONCILEFLOW_REPOSITORY_BACKEND: sqlalchemy
+  RECONCILEFLOW_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-reconcileflow}:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD em .env.production}@postgres:5432/${POSTGRES_DB:-reconcileflow}
+  RECONCILEFLOW_REDIS_URL: redis://redis:6379/0
+  RECONCILEFLOW_ASYNC_ENABLED: "true"
+  RECONCILEFLOW_ASYNC_ROW_THRESHOLD: "1"
+  RECONCILEFLOW_CORS_ORIGINS: ${PUBLIC_ORIGIN:?Defina PUBLIC_ORIGIN em .env.production}
+  RECONCILEFLOW_API_HOST: 0.0.0.0
+  RECONCILEFLOW_LOG_LEVEL: ${RECONCILEFLOW_LOG_LEVEL:-INFO}
+  RECONCILEFLOW_OTEL_ENABLED: ${RECONCILEFLOW_OTEL_ENABLED:-false}
+
+x-app-security: &app-security
+  - no-new-privileges:true
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-reconcileflow}
+      POSTGRES_USER: ${POSTGRES_USER:-reconcileflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD em .env.production}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-reconcileflow} -d ${POSTGRES_DB:-reconcileflow}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    logging: *default-logging
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis-data:/data
+    logging: *default-logging
+
+  migrate:
+    image: ${BACKEND_IMAGE:?A referência imutável BACKEND_IMAGE é obrigatória}
+    pull_policy: always
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    environment: *app-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    security_opt: *app-security
+    logging: *default-logging
+
+  api:
+    image: ${BACKEND_IMAGE:?A referência imutável BACKEND_IMAGE é obrigatória}
+    pull_policy: always
+    restart: unless-stopped
+    environment: *app-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    security_opt: *app-security
+    logging: *default-logging
+
+  worker:
+    image: ${BACKEND_IMAGE:?A referência imutável BACKEND_IMAGE é obrigatória}
+    pull_policy: always
+    restart: unless-stopped
+    command: ["celery", "-A", "reconcileflow.worker:celery_app", "worker", "--loglevel=INFO", "--concurrency=2"]
+    environment: *app-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    security_opt: *app-security
+    logging: *default-logging
+
+  web:
+    image: ${FRONTEND_IMAGE:?A referência imutável FRONTEND_IMAGE é obrigatória}
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-8080}:80"
+    logging: *default-logging
+
+volumes:
+  postgres-data:
+  redis-data:

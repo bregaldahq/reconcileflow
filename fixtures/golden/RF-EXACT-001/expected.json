@@ -1,0 +1,12 @@
+{
+  "fixture_id": "RF-EXACT-001",
+  "expected_status": "MATCHED",
+  "rule_id": "exact_composite",
+  "rule_version": 1,
+  "source_ids": [
+    "erp-1"
+  ],
+  "target_ids": [
+    "bank-9"
+  ]
+}

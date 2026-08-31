@@ -1,0 +1,35 @@
+{
+  "run_id": "golden-exact-ambiguous",
+  "transactions": [
+    {
+      "id": "dataset-a:S1",
+      "dataset": "dataset-a",
+      "side": "A",
+      "amount": "100.00",
+      "date": "2026-01-15",
+      "document": "12345678901",
+      "reference": "INV1"
+    },
+    {
+      "id": "dataset-b:T1",
+      "dataset": "dataset-b",
+      "side": "B",
+      "amount": "100.00",
+      "date": "2026-01-15",
+      "document": "12345678901",
+      "reference": "INV1"
+    },
+    {
+      "id": "dataset-b:T2",
+      "dataset": "dataset-b",
+      "side": "B",
+      "amount": "100.00",
+      "date": "2026-01-15",
+      "document": "12345678901",
+      "reference": "INV2"
+    }
+  ],
+  "expected": {
+    "AMBIGUOUS": 1
+  }
+}

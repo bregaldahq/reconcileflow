@@ -1,0 +1,27 @@
+name: ReconcileFlow task
+description: Propose one small, verifiable product change
+title: "RF-___: "
+labels: ["task"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - Given...
+        - When...
+        - Then...
+    validations:
+      required: true
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Domain invariants / architecture constraints
+    validations:
+      required: true

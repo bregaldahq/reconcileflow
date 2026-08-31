@@ -1,0 +1,12 @@
+{
+  "required": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT.md",
+    "docs/DOMAIN.md",
+    "docs/RELIABILITY.md",
+    "docs/SECURITY.md",
+    "docs/QUALITY.md",
+    "specs/000-template.md"
+  ]
+}
